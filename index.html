@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PILLAR Performance — Supplement Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ef;
+    --off-white: #ede9e3;
+    --mid: #b8b0a4;
+    --accent: #ffffff;
+    --accent-dark: #cccccc;
+    --text-muted: #7a7469;
+    --card-bg: #141412;
+    --border: #2a2825;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,240,74,0.06) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 40px 0 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-lockup {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .logo-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--mid);
+    font-weight: 400;
+    line-height: 1;
+    margin-top: 3px;
+  }
+
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(38px, 7vw, 64px);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .header-title em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .header-desc {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 460px;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-bottom: 36px;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .progress-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    font-weight: 600;
+  }
+
+  .progress-track {
+    height: 2px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 36px 40px;
+    margin-bottom: 16px;
+    animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) both;
+  }
+
+  .question-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .question-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--mid);
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.18s ease;
+  }
+
+  .option-btn:hover {
+    border-color: var(--accent);
+    color: var(--white);
+    background: rgba(200,240,74,0.04);
+  }
+
+  .option-btn:hover::before {
+    width: 3px;
+  }
+
+  .option-btn:active {
+    transform: scale(0.99);
+  }
+
+  .option-letter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    min-width: 20px;
+    transition: color 0.18s;
+  }
+
+  .option-btn:hover .option-letter {
+    color: var(--accent);
+  }
+
+  /* NAV */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    animation: fadeIn 0.4s ease 0.1s both;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.18s;
+  }
+
+  .back-btn:hover {
+    border-color: var(--mid);
+    color: var(--white);
+  }
+
+  /* RESULTS */
+  .results-wrap {
+    animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1) both;
+  }
+
+  .results-hero {
+    background: var(--accent);
+    padding: 32px 40px;
+    margin-bottom: 4px;
+  }
+
+  .results-hero-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--black);
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 8px;
+  }
+
+  .results-hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .results-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .meta-tag {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--black);
+    background: rgba(0,0,0,0.12);
+    padding: 4px 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .results-count-bar {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .results-count-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .results-count-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  /* SUPPLEMENT CARDS */
+  .supp-section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  .supp-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    overflow: hidden;
+    animation: slideUp 0.4s ease both;
+  }
+
+  .supp-stripe { height: 100%; }
+  .stripe-core { background: var(--accent); }
+  .stripe-injury { background: #f04a6a; }
+  .stripe-performance { background: #4ac4f0; }
+  .stripe-immune { background: #c04af0; }
+  .stripe-recovery { background: #f09a4a; }
+
+  .supp-content { padding: 20px 24px; }
+
+  .supp-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .supp-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .supp-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-core { background: rgba(255,255,255,0.1); color: var(--accent); }
+  .badge-injury { background: rgba(240,74,106,0.12); color: #f04a6a; }
+  .badge-performance { background: rgba(74,196,240,0.12); color: #4ac4f0; }
+  .badge-immune { background: rgba(192,74,240,0.12); color: #c04af0; }
+  .badge-recovery { background: rgba(240,154,74,0.12); color: #f09a4a; }
+
+  .supp-body {
+    font-size: 14px;
+    color: var(--mid);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .supp-body strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .supp-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .timing-pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    margin-top: 32px;
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* RESTART */
+  .restart-row {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .restart-btn {
+    background: var(--white);
+    border: none;
+    padding: 14px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    color: var(--black);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.18s;
+  }
+
+  .restart-btn:hover {
+    background: var(--accent);
+  }
+
+  .secondary-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 14px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    color: var(--mid);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.18s;
+  }
+
+  .secondary-btn:hover {
+    border-color: var(--mid);
+    color: var(--white);
+  }
+
+  /* KEYFRAMES */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* LOADING / TRANSITION */
+  .fade-out { animation: fadeOut 0.2s ease forwards; }
+  @keyframes fadeOut {
+    to { opacity: 0; transform: translateY(-8px); }
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+  }
+
+  .footer-brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .footer-link {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 300;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover { color: var(--accent); }
+
+  @media (max-width: 520px) {
+    .question-card { padding: 24px 20px; }
+    .results-hero { padding: 24px 20px; }
+    .results-count-bar { padding: 12px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo-lockup">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABmATEDASIAAhEBAxEB/8QAHQABAAIDAQEBAQAAAAAAAAAAAAcJBQYIAwQBAv/EAFEQAAEEAQIDAwUJCwgIBwAAAAEAAgMEBQYRBxIhCBMxCSJBUWEUFRY3OHF1kbMYIzJCVnJ0gaWy0xc0U1WCkpTRJCU1UlehsbRiZXOEk5XS/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AOy0REBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBeN+3WoUprt2xFWrQRukmmleGsjYBuXOJ6AAddyl+3VoUp7t2xFWrQRukmmleGsjY0blziegAHXdcLcb+M9njfxHw/C/S2Qlxmkb2Thpy2g0891zpA3vHN6Hux4tYdt9gXegNDC9rDtD2+IV2XSukrE1XSkD9pJWksfknj8Z3pEQ/FZ6fwnddg2HtDcSNc6Jvx3NM6myWPcwgmJsxdC/2Ojduxw+cKwWp2YOCcNCKtJo8WXxxhjp5b1jvJCB1c7Z4HMfHoAPUAuRu2HwYxfCjUmLt6cknODzDJO6gnfzvryx8vMzm8XNIe0jfr4gkoOtuy3xxp8XcBPWvwxUdTY5jTdrR793Mw9BNHv15Sehb15SR16gqAvKRWJ2a80rGyaRsYxcjg0PIAJlIJ29fQfUFDXZa1NZ0tx50pdglLI7V5lCwPQ+Kc92QfmLg752hTB5ST4wNL/RUn2xQRj2PbdpvaQ0g1tiYB88zXAPPnNMEm4PrC3ryiVmwONWLiE8ojbgYS1geeUEzTb7D0b7D6lH3Y++Ulo79Jl+wkW+eUS+O7G/QEH20yDDdhGxY+6JxbO/l5H0rbXt5zs4d0TsfX1AP6grHFW92EflGYj9Et/YuVkKAoa7as00HZs1O+GV8bj7maSxxBINmMEdPQVMqhbtufJq1N+dV/7mJBWqLFj+nl/vlW48MJJJeG2mJZXukkfh6jnPcdy4mFm5J9JVRXpKtz4V/FjpX6Fp/YsQbIiIgLEa01BR0ppLK6kybuWpjaslmXrsXBrSeUe0nYD2kLLrlbyiGuzitEYvQlOblsZmX3TcAPUVoiOUH2Ok2/8AjKDinVupMtqbU2Rz+UtzS3MhYfYlcZCdi4k7D1AeAHoAAUt9iziFPo/jVQo3LsjcVnv9X2GPkPIJHH7y/Y9Nw/Zu/oD3KFsVjr+WvMo42nPctPDnNihYXPcGtLnEAeprST7AV4QSyQTMmhe6OSNwcxzTsWkdQR7UFyiHwWj8B9bR8QuFGB1QHNNmxXEdxo/FsM82QbejdwJHsIW8HwQVddqmzZd2hNZ81iZ22Rc0bvPQBrQB8wHRRj7on/ppP7xUkdqj5QmtPpN/7rVInYY4b6L4h5rVMescK3Kx0a9c12OnkjDC9z+Y+Y4bnzR4+1BzmLFgHfvpf7xW66A4ucRNDXorOn9U5GKNhBdUmmdNXkHqdG4lv6xsfUQu/ZuzLwQkicz4Dws3G3My9ZBHzffFxT2seFWP4U8RosZhbE0uIyFQXKrZnc0kPnOa6Mn8YAt3B9RG+5G5Dubs4cX8bxd0a7IshZSzNJzYsnSa7cRvI3a9hPXkdsdt+oII67bmUVXf5P8AzdnHceY8XHIe4y2OnhlZ6CWN71p+cchH6yrEEBERAREQEREBERAREQEREHJ3lH9RZbHaS0tp+lbfBQy1izJdYw7d93Ii5Gu9bd5CdvDcNPoXI/BfJUcRxc0llcpZZVo1MzVmsTv35Y2NlaXOPsA6rqLymP8ANtBfn5D/AKVlxeEFqZ448IWgk8RdOdPVcaVxt22+MGn+JWocNidKWHXMVhmSufcMZY2eaTlB5A4AlrQwdSBuSfQATztsfWPrWW0rpjUWqskzHacwt/K23kAR1YXSEe0kdGj2nYINs7NeCn1Fx20dj4I3P5MpDak2G+0cJ715P6mH61NXlJPjA0v9FSfbFTP2ROAknC+lY1FqbuJdUX4u67uMh7KUO4JjDh0c8kAucOnQAdNyYY8pJ8YGl/oqT7YoIq7H3yktHfpMv2Ei3zyifx3Y36Ag+2mWh9j75SWjv0mX7CRb55RP47sb9AQfbTIMD2EflGYj9Dt/YuVkKrX7D92nQ7QuHnvW4KsRq22h80gY3cwu2G59KsT+Emnv69xf+Lj/AM0GVULdtz5NWpvzqv8A3MSlT4Sae/r3F/4uP/NRR21ZorHZk1JNBIyWJ5qOY9jg5rh7pi6gjxQVqekq3PhX8WOlfoWn9ixVGekq17hZqPT44ZaWHv5jNxhqgP8ApcfQiFoI8UG8osV8I9P/ANeYz/Fx/wCa+qhk8bfc9tG/VtFgBcIZmv5d/XsTsg+skAEkgAeJKqw7S2uf5QuMecz0MpkoMl9yY/r09zxbtaR+ceZ/9pd5drrXfwE4JZezWnEeSyg97aOx2cHyghzh+awPO/r2VYp8UHVvk69DNyer8zri7AH18XB7iq8w3BmlHnn9Ue4P/qKDeP2i3aA4uag0y2Msqw2TLT6dDXk8+Pb5muA+cFfbw2448SOHennYDSebho4907rBjdRhlJkcACeZ7SfBo9PoWv8AEvX2qOIueizmrL8d2/FXbWZIyvHD97aXEDZgAPVx6lB0r5OfXZr5nNcPbk+0dxnvjQa49O9YA2Vo9pbyu/sFdtHwVRXDPVVvRGvsLqulzGXG22TFgO3eM32ez+00ub+tW04bI08vh6mVx8zZqdyBliCRvg9j2hzT9RCCsDtUfKE1p9Jv/datp7IXGLTfCPK6hsajo5S1Fk4IGQmjGx5a6NzieYOc3oQ70epat2qPlCa0+k3/ALrVp2kdIap1dYnr6X0/k8zLXYHzNpV3SmNpOwLth03Qdxy9tLhi2NzmYLVb3AdG+5oRufn71ck9ofipd4t69OoJ6Qx9OvAKtGrz87o4gS7dzthu4lxJ9XQejc6PqLB5nTuWlxOexlzGX4du8r2ojHI3cbgkHrsR1CyXDPS7da68xGlnZepiPfKwIBbtAljCQdhsPFxIDQOm7iBuN90E6eT00vbyfGC1qXunClhaDw6Tbp303mMb85b3h/UrAVpvB7hzp/hho2DTen4nFgd3tmzIB3tmYgB0jtvmAA8AAAtyQEREBERAREQEREBERAREQcceUx/m2gvz8h/0rLmLgTWr3ONGjKtuCKxBLnKjJIpWBzHtMrdwQehHsKs04mcM9E8SIaMOssK3JtoOe6se+kiMZeAHbFjgdjyt6H1Bazpvs78INO5+jncTpJsN+jM2etI67O8Mkad2u5XPIOx69R4oN7GktLE7/BvDb/oMX/5WUpU6lKEQU60NeIeDIowxv1AL3RAXCvlJPjA0v9FSfbFd1LRuJfCXQHEa5UuawwDcjYpxujgkFiWItYTuR5jhuN+vX2+tBXz2PvlI6O/SZfsJFvnlE/juxv0BB9tMutdFcBeFOjtS1dRaf0s2rk6nN3Ezrc0ndlzS0kNe8jfYkeHpX38RuDfDniHmIMvq3TrMheggFdkwsyxHuwS4NPI4A7FzvH1oKpxuv3c+ofUrMPuXeCH5GftGz/ET7l7gh+Rn7Rs/xEFZ4J3HQfUu0csSfJr1SST96jHU/wDmSl/7l7gh+Rn7Rs/xFvMnDfRUvDccO34OI6YEYjFHvX7AB/eA8+/Nvz+dvvvugqVPinX1f8lZj9y9wQ/Iz9oWf4ifcvcEPyM/aFn+IgrO6+r/AJLqDycJd/K9nhuQPeB/T/3EK6R+5e4IfkZ+0LP8RbTw24P8POHWUs5TSGn2465Zg9zyymzLKTHzB3KOdx2G4B6eoIOOfKA66+EPFOvpOpMXUdOw8kgB811qUBz/AJ+VvI32EOUR8DOHV3ijxGo6Tp2xSZKx81m0Yu8EETBuXcu43O/K0DcdXBWDZ/s58Hs7nL2aymk+/vX7D7FmX3fYbzyPJc52wfsNyT0C2Dhtwk4fcObtq7o/T0eOtW4xFNN38kr3MB35QXuOw3AJ2232G/gEHOo7DtL/AIjz/wD07f4q+fKdiAR42zJj+IL57bInOgikxQY17wPNaXCU7Anpvsdvauy0QU2WYJq1iWvYjdFNE8skY4bFrgdiD8xVgvYF118JOEkumLc3Pe05N3LQT5xrSbuiP6jzt9gaFu+ouzrwez+cuZrJaOifduzOnsPjtzxh8jju53K14AJPU7DxWc4bcIuH3DrI28jo/A+9tq3CIJn+6pZeZgPNts9xA6gdfFBXf2qPlCa0+k3/ALrVOXk0/wDbmtv0an+/KuiNXdn7hLqvUdzUOc0o2zkrr+8sStuTx87tgN+VrwAeg8As7w04WaE4cOvP0dgmY197kFl/fySl4Zvyjd7jsBufD1oIx7Z3BkcRNHfCTA1OfVGGic6NrB51yuNy6H2uHVzPbuPxuldjXPikD2Ocx7TuCDsQQrlVE+f7OfBzOZm3l7+jYDbtymWd0VqaJrnk7k8rXho3PXoAgwHY94yjiZo33mzdjm1Tho2ttFx863D4NnHrPg1//i2PTmAU7qNdCcC+GGh9Swaj0zpw0MnA17I5hdnfsHtLXAtc8g9CfEH1+ICkpAREQEREBERAREQEREBERAREQEREBCiINA1ZxJbp/M5qqdN5K7QwNOG7lbsEsIEEUgeeYMc4OfytjcSB128Nz0WW1lq6TBW8JRx+Es5m5mZpIq0UM0cQHJE6Uuc6QgAcrSsTZ4aYnK8R8zqfUVClkq9qvSiqQyF7uQw96Xc7PwHAl7SN9/A+C/OL2irmrbmnLNfG4TKQ4q3NNPSykz4opg+B8Q2cyN/UFwPUehBnNVaom09pKDNWcJZmtzTVawx8c0fOJp5WRNZzk8nRzxud9ui/rRuqWaglylKfGWsVlMTYbBep2HseWF8bZGOa9ji1zXNcD47jqCAsbrbSNjU+gKGnXwUKhjtY+WeuyaQwtjgnikfGx4DXbcrC1p2afDwXpwt0jLovHZXE81WapJk5rVOwHPdZkik2cBYc7cvkYd2B5cSWMZvsQg/rh1rC/rClFlBpi3jcVZhMta1Nahf3vnbAcjHFzdxueq+TIcQZheybcHpHM53H4iZ8F+5UfC0NkYN5GRMe8OmczwIaPEFoLnAhenCDQdLQ2lqtM1KDcsYeS9aqtI90OD3OBJIBP4R8Vj4tOa709JmsfpOzgJcbk7s96vPkHytmx8k7i+Ud2xhbO0PLntBdGevKSQN0Gd1DrShQ0ZR1Pi68marZGWnFRZXe1hnNmRkcRBeQAN5Gk77bBe+jNUM1DJk6c+NtYvJ4mw2vepzuY8xudG2RjmvYS1zXMe0gg7+IIBCwGc4cxT8L8HoSjO11TGz47nfYe5pmirTxvk6s6h7msd4bdT4hZDhZpGbReLyWH5q01R+Sms07DS51iWKTZwFhzur5GndgeSSWMZv1CDG43i5pm7whu8Swy1FjaLJu/rPDe/bJG4t7rYHbmceXl67HnafStqdqKhDo06rtl1bHsx/vhKX7bxx933h326bgKJKHBXNwYWlin5fHCo3EkXKzQ8xz5OOGSGvPuR+AGyAu6bl0MR26FbrqrRGVzfC/EaIjyUNSNopQZSwwcznV4Q0yNiDmkEucxrfPG3K5249BDP6A1TU1jpSpqCnVtU2zl7JatpobNXkY8sfHI0E7ODmkELXMRxYwGU07bzFerda+lmYsTYqSNa2Vr5LTa7JRudjG4u5g4eIDh4ghffw70lldK5fUXujNOytDK2o78b5o2MnZYLAyfdsbGs5XckbhsN9y/f1nTrfCHKOwOAZTylOtlKOVbLkHDmMN2iMkbgiPTfnYdix23Ql48HkoJB1fqpuDuUMVSxVvM5nI946rRrOYwmOMDvJXveQ1jG8zQSTuS5oAJK99I5+bOV7QuYPJYW9Tm7mxWuMHiQHB0cjSWSMIPRzSeu4IBBCxusdP5uXU2K1ZpmWh750K81Oarec9kNqvK6Nzm87Q50b2uiYQ4NcPwgR1BGS0lDqhsNufVVvGvsTz80FWgxxiqxAABneOAdK4kFxcWt8dg0bdQxvDrWF3WNRuSbpm3jsVKx7q1qezE/veWQs25GuLm+BPVbco04KaEyGiYH1b2E05DIY3tkyVC1I+xbJmc8d4x0TQ0bO/3ndR9UloCIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIg//Z" alt="PILLAR Performance" style="height:56px; filter:invert(1);">
+    </div>
+    <div class="header-title">SUPPLEMENT<br><em>ADVISOR</em></div>
+    <div class="header-desc">Answer a few questions to receive your personalised supplement protocol, built around your goals, training and body.</div>
+  </div>
+
+  <div id="app"></div>
+
+  <div class="footer">
+    <span class="footer-brand">© Pillar Performance</span>
+    <a href="https://pillarperformance.shop" class="footer-link" target="_blank">pillarperformance.shop →</a>
+  </div>
+</div>
+
+<script>
+const LETTERS = ['A','B','C','D'];
+
+const questions = [
+  {
+    id: 'goal',
+    tag: 'Your goal',
+    text: 'What is your primary goal right now?',
+    options: [
+      { label: 'Return from injury & recovery', value: 'injury' },
+      { label: 'Performance & training adaptation', value: 'performance' },
+      { label: 'General health & longevity', value: 'general' },
+      { label: 'Body composition & weight management', value: 'weight' }
+    ]
+  },
+  {
+    id: 'sport',
+    tag: 'Training type',
+    text: 'What best describes your primary training?',
+    options: [
+      { label: 'Endurance — running, cycling, triathlon', value: 'endurance' },
+      { label: 'Strength & power sports', value: 'strength' },
+      { label: 'Team & mixed sports', value: 'team' },
+      { label: 'General fitness & recreational', value: 'recreational' }
+    ]
+  },
+  {
+    id: 'load',
+    tag: 'Training load',
+    text: 'How would you describe your current training load?',
+    options: [
+      { label: 'High — daily or twice daily', value: 'high' },
+      { label: 'Health enthusiast — 1 session per day', value: 'enthusiast' },
+      { label: 'Moderate — 4–5 sessions per week', value: 'moderate' },
+      { label: 'Low — returning to training', value: 'low' }
+    ]
+  },
+  {
+    id: 'diet',
+    tag: 'Nutrition',
+    text: 'What best describes your diet?',
+    options: [
+      { label: 'Omnivore — meat, fish, dairy regularly', value: 'omnivore' },
+      { label: 'Mostly plant-based / vegetarian', value: 'plant' },
+      { label: 'Vegan', value: 'vegan' }
+    ]
+  },
+  {
+    id: 'sleep',
+    tag: 'Recovery',
+    text: 'How is your sleep and recovery quality?',
+    options: [
+      { label: 'Poor — struggling to recover between sessions', value: 'poor' },
+      { label: 'Average — room for improvement', value: 'average' },
+      { label: 'Good — recovering well', value: 'good' }
+    ]
+  },
+  {
+    id: 'immune',
+    tag: 'Immune health',
+    text: 'Are you exposed to immune stressors?',
+    options: [
+      { label: 'Frequently — heavy travel, high training block', value: 'high' },
+      { label: 'Sometimes — occasional travel or illness', value: 'medium' },
+      { label: 'Rarely', value: 'low' }
+    ]
+  }
+];
+
+const SUPPS = {
+  collagen: {
+    name: 'Collagen Repair Tendoforte®',
+    category: 'injury',
+    badgeLabel: 'Tendons & Joints',
+    stripe: 'stripe-injury',
+    badge: 'badge-injury',
+    body: '<strong>15 g (3 scoops)</strong> 30–60 min before exercise — ideally pre-run.<br><strong>5 g post-exercise</strong> daily for connective tissue recovery and return from injury.',
+    timing: ['Pre-exercise', 'Post-exercise', 'Daily']
+  },
+  creatine: {
+    name: 'Creatine Monohydrate',
+    category: 'performance',
+    badgeLabel: 'Performance',
+    stripe: 'stripe-performance',
+    badge: 'badge-performance',
+    body: '<strong>5–10 g daily</strong>, best taken post-training. Aids recovery, power output, and cognitive performance. For endurance athletes, post-run timing is optimal.',
+    timing: ['Post-training']
+  },
+  wpi: {
+    name: 'Grass-Fed Whey Protein Isolate',
+    category: 'core',
+    badgeLabel: 'Core Nutrition',
+    stripe: 'stripe-core',
+    badge: 'badge-core',
+    body: 'Use to reach your daily protein target. Aim for a minimum of <strong>1.8 g per kg body weight</strong> per day. Can increase to <strong>2.5 g/kg</strong> if cutting weight.',
+    timing: ['Post-training', 'Any time']
+  },
+  plantprotein: {
+    name: 'Plant Protein Blend',
+    category: 'core',
+    badgeLabel: 'Core Nutrition',
+    stripe: 'stripe-core',
+    badge: 'badge-core',
+    body: 'Aim for minimum <strong>1.8 g per kg body weight</strong> per day. Choose a leucine-rich blend (pea + rice) to optimise muscle protein synthesis without animal products.',
+    timing: ['Post-training', 'Any time']
+  },
+  omega3: {
+    name: 'Ultra Omega-3',
+    category: 'injury',
+    badgeLabel: 'Anti-inflammation',
+    stripe: 'stripe-injury',
+    badge: 'badge-injury',
+    body: '<strong>5 capsules per day</strong>, spread across meals. Key for reducing systemic inflammation, supporting joint health and accelerating injury recovery.',
+    timing: ['With meals']
+  },
+  magnesium: {
+    name: 'Triple Magnesium',
+    category: 'recovery',
+    badgeLabel: 'Sleep & Recovery',
+    stripe: 'stripe-recovery',
+    badge: 'badge-recovery',
+    body: '<strong>2 scoops 30–60 min before bed</strong> to aid sleep quality and overnight recovery. On high-intensity days or heavy sweat loss, add a <strong>3rd scoop at a separate time</strong> for better absorption. Tabs and powder are equally effective.',
+    timing: ['30–60 min before bed']
+  },
+  immunec: {
+    name: 'Ultra Immune C',
+    category: 'immune',
+    badgeLabel: 'Immune',
+    stripe: 'stripe-immune',
+    badge: 'badge-immune',
+    body: 'Take in the <strong>morning only</strong> — avoid evenings as high-dose Vitamin C can impact sleep. Cycle <strong>2 days on / 1 day off</strong>. Always prioritise during travel, high training blocks, or when feeling run down.',
+    timing: ['Morning only', '2 on / 1 off']
+  },
+  bvitamin: {
+    name: 'Ultra B Active (B Complex)',
+    category: 'performance',
+    badgeLabel: 'Energy & Performance',
+    stripe: 'stripe-performance',
+    badge: 'badge-performance',
+    body: 'Take <strong>first thing in the morning on an empty stomach</strong>. For omnivores eating animal proteins regularly, alternate days are sufficient. Vegan and plant-based athletes may benefit from daily use.',
+    timing: ['Morning, empty stomach']
+  }
+};
+
+const GOAL_LABELS = { injury: 'Injury Recovery', performance: 'Performance', general: 'General Health', weight: 'Weight Management' };
+const SPORT_LABELS = { endurance: 'Endurance', strength: 'Strength & Power', team: 'Team Sports', recreational: 'General Fitness' };
+const LOAD_LABELS = { high: 'High Load', enthusiast: 'Health Enthusiast', moderate: 'Moderate Load', low: 'Low Load' };
+
+function getRecommendations(a) {
+  const recs = [];
+  if (a.goal === 'injury') { recs.push('collagen', 'omega3'); }
+  if (a.goal === 'injury' || a.load === 'high' || a.sport === 'endurance') recs.push('creatine');
+  if (a.diet === 'vegan' || a.diet === 'plant') recs.push('plantprotein');
+  else recs.push('wpi');
+  if (!recs.includes('omega3') && (a.load === 'high' || a.load === 'enthusiast' || a.goal === 'performance' || a.sport === 'endurance')) recs.push('omega3');
+  if (a.sleep === 'poor' || a.sleep === 'average' || a.load === 'high' || a.load === 'enthusiast') recs.push('magnesium');
+  else recs.push('magnesium');
+  if (a.immune === 'high' || a.immune === 'medium' || a.load === 'high' || a.load === 'enthusiast') recs.push('immunec');
+  if (a.load !== 'low') recs.push('bvitamin');
+  return [...new Set(recs)];
+}
+
+let answers = {};
+let step = 0;
+let history = [];
+
+function renderApp() {
+  const app = document.getElementById('app');
+  if (step < questions.length) {
+    renderQuestion(app);
+  } else {
+    renderResults(app);
+  }
+}
+
+function renderQuestion(app) {
+  const q = questions[step];
+  const pct = Math.round((step / questions.length) * 100);
+
+  const progressHTML = `
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Progress</span>
+        <span class="progress-count">${step + 1} / ${questions.length}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+
+  const optionsHTML = q.options.map((opt, i) => `
+    <button class="option-btn" onclick="selectOption('${q.id}','${opt.value}')">
+      <span class="option-letter">${LETTERS[i]}</span>
+      ${opt.label}
+    </button>`).join('');
+
+  const navHTML = step > 0 
+    ? `<div class="nav-row"><button class="back-btn" onclick="goBack()">← Back</button></div>` 
+    : '';
+
+  app.innerHTML = progressHTML + `
+    <div class="question-card">
+      <div class="question-tag">${q.tag}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">${optionsHTML}</div>
+    </div>
+    ${navHTML}`;
+}
+
+function renderResults(app) {
+  const recs = getRecommendations(answers);
+  const progress = `
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Complete</span>
+        <span class="progress-count">Protocol Ready</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    </div>`;
+
+  const metaTags = [
+    GOAL_LABELS[answers.goal] || '',
+    SPORT_LABELS[answers.sport] || '',
+    LOAD_LABELS[answers.load] || ''
+  ].filter(Boolean).map(t => `<span class="meta-tag">${t}</span>`).join('');
+
+  const suppCards = recs.map((key, idx) => {
+    const s = SUPPS[key];
+    return `
+      <div class="supp-card" style="animation-delay:${idx * 0.06}s">
+        <div class="supp-stripe ${s.stripe}"></div>
+        <div class="supp-content">
+          <div class="supp-top">
+            <div class="supp-name">${s.name}</div>
+            <div class="supp-badge ${s.badge}">${s.badgeLabel}</div>
+          </div>
+          <div class="supp-body">${s.body}</div>
+          <div class="supp-pills">${s.timing.map(t => `<span class="timing-pill">${t}</span>`).join('')}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = progress + `
+    <div class="results-wrap">
+      <div class="results-hero">
+        <div class="results-hero-label">Your personalised protocol</div>
+        <div class="results-hero-title">Supplement<br>Protocol</div>
+        <div class="results-hero-meta">${metaTags}</div>
+      </div>
+      <div class="results-count-bar">
+        <span class="results-count-label">Supplements recommended</span>
+        <span class="results-count-num">${recs.length}</span>
+      </div>
+      ${suppCards}
+      <div class="disclaimer">
+        This protocol is a starting-point guide based on your answers. Dosages above represent performance-level recommendations. Always consult a qualified health professional before starting any supplement regimen. Pillar Performance products are third-party tested and informed sport certified.
+      </div>
+      <div class="restart-row">
+        <button class="restart-btn" onclick="restart()">Start over</button>
+        <button class="secondary-btn" onclick="window.open('https://pillarperformance.shop','_blank')">Shop Pillar →</button>
+      </div>
+    </div>`;
+}
+
+function selectOption(id, value) {
+  history.push({ step, answers: JSON.parse(JSON.stringify(answers)) });
+  answers[id] = value;
+  step++;
+  const app = document.getElementById('app');
+  app.classList.add('fade-out');
+  setTimeout(() => {
+    app.classList.remove('fade-out');
+    renderApp();
+  }, 180);
+}
+
+function goBack() {
+  if (!history.length) return;
+  const prev = history.pop();
+  step = prev.step;
+  answers = prev.answers;
+  const app = document.getElementById('app');
+  app.classList.add('fade-out');
+  setTimeout(() => {
+    app.classList.remove('fade-out');
+    renderApp();
+  }, 180);
+}
+
+function restart() {
+  answers = {}; step = 0; history = [];
+  const app = document.getElementById('app');
+  app.classList.add('fade-out');
+  setTimeout(() => {
+    app.classList.remove('fade-out');
+    renderApp();
+  }, 180);
+}
+
+renderApp();
+</script>
+</body>
+</html>
